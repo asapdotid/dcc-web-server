@@ -32,7 +32,6 @@ services:
 
   phpfpm:
     image: docker.io/bitnami/php-fpm:${PHP_VERSION}
-    user: 1000:1000
     hostname: phpfpm
     restart: always
     environment:

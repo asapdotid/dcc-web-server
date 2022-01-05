@@ -46,10 +46,6 @@ services:
     volumes:
       - ./config/php/conf:/opt/bitnami/php/etc/conf.d:ro
       - ./public-html:/app:rw
-    # command:
-    #   - /bin/bash
-    #   - -c
-    #   - chmod 0755 -R /app/prestashop/config
 
   nginx:
     image: docker.io/bitnami/nginx:${NGINX_VERSION}

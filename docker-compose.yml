@@ -1,0 +1,64 @@
+version: "2"
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  mariadb:
+    image: docker.io/bitnami/mariadb:${DB_VERSION}
+    user: root:root
+    restart: always
+    environment:
+      - TZ=${TIMEZONE:-Asia/Jakarta}
+      - ALLOW_EMPTY_PASSWORD=${ENV_DB_ALLOW_EMPTY_PASSWORD:-yes}
+      - MARIADB_ROOT_PASSWORD=${ENV_DB_ROOT_PASSWORD}
+      - MARIADB_USER=${ENV_DB_USER}
+      - MARIADB_PASSWORD=${ENV_DB_PASSWORD}
+      - MARIADB_DATABASE=${ENV_DB_DATABASE}
+    networks:
+      - app-tier
+    expose:
+      - "${ENV_DB_PORT}:3306"
+    volumes:
+      - ./config/db/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+      - ./data/db/${DB_VERSION}:/bitnami/mariadb/data:rw
+      # - ./scripts/mysql-dump:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "/opt/bitnami/scripts/mariadb/healthcheck.sh"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+  phpfpm:
+    image: docker.io/bitnami/php-fpm:${PHP_VERSION}
+    user: 1000:1000
+    hostname: phpfpm
+    restart: always
+    environment:
+      - TZ=${TIMEZONE:-Asia/Jakarta}
+    depends_on:
+      - mariadb
+    networks:
+      - app-tier
+    expose:
+      - 9000
+    volumes:
+      - ./config/php/conf:/opt/bitnami/php/etc/conf.d:ro
+      - ./public-html:/app:rw
+
+  nginx:
+    image: docker.io/bitnami/nginx:${NGINX_VERSION}
+    hostname: nginx
+    restart: always
+    depends_on:
+      - phpfpm
+    networks:
+      - app-tier
+    ports:
+      - "80:8080"
+      - "443:8443"
+    volumes:
+      - ./config/nginx/certs:/certs
+      - ./config/nginx/vhosts:/opt/bitnami/nginx/conf/server_blocks:ro
+      - ./public-html:/app:rw

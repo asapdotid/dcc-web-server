@@ -1,6 +1,10 @@
-# Setup Web Server use Bitnami Image and custom it
+# Setup Web Server use Bitnami Images and custom it
 
 Create Docker web server
+
+- PHP-FPM
+- MariaDB or MySQL
+- Nginx
 
 Instruction:
 

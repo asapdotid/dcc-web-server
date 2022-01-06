@@ -14,6 +14,8 @@
 .env
 /config/nginx/vhosts/*
 !/config/nginx/vhosts/.keepfile
+/config/nginx/certs/*
+!/config/nginx/certs/.keepfile
 /data/db/*
 !/data/db/.keepfile
 /logs/db/*
